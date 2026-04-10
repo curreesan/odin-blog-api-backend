@@ -1,6 +1,6 @@
 # Odin Blog API — Backend
 
-A RESTful blog API built with Node.js, Express, Prisma ORM, and PostgreSQL. Features JWT-based authentication with Passport.js, role-based access control, and full CRUD for posts and comments.
+A RESTful blog API(https://odin-blog-api-backend.onrender.com/) built with Node.js, Express, Prisma ORM, and PostgreSQL. Features JWT-based authentication with Passport.js, role-based access control, and full CRUD for posts and comments.
 
 ---
 
