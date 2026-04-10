@@ -225,6 +225,29 @@ const updatePostStatus = async (req, res) => {
   }
 };
 
+const getAuthorPosts = async (req, res) => {
+  try {
+    const authorId = Number(req.user.id);
+
+    const posts = await prisma.post.findMany({
+      where: { authorId },
+      include: {
+        _count: {
+          select: { comments: true },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    res.status(200).json({ posts, message: "All uploaded posts" });
+  } catch (err) {
+    console.error("getAuthorPosts error:", err);
+    res.status(500).json({ error: "Failed to fetch author posts" });
+  }
+};
+
 export {
   getAllPosts,
   getPostById,
@@ -232,4 +255,5 @@ export {
   updatePost,
   deletePost,
   updatePostStatus,
+  getAuthorPosts,
 };

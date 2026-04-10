@@ -8,9 +8,17 @@ import {
   updatePost,
   deletePost,
   updatePostStatus,
+  getAuthorPosts,
 } from "../controllers/postController.js";
 
 const router = express.Router();
+
+router.get(
+  "/my-posts",
+  passport.authenticate("jwt", { session: false }),
+  isAuthor,
+  getAuthorPosts,
+);
 
 router.get("/", getAllPosts);
 router.get("/:id", getPostById);
