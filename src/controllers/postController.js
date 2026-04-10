@@ -53,4 +53,183 @@ const getPostById = async (req, res) => {
   }
 };
 
-export { getAllPosts, getPostById };
+const createPost = async (req, res) => {
+  try {
+    const { title, content, status } = req.body;
+
+    if (!title || !content) {
+      return res
+        .status(400)
+        .json({ message: "Title and content are required" });
+    }
+
+    const allowedStatus = ["DRAFT", "PUBLISHED"];
+
+    if (status && !allowedStatus.includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    const post = await prisma.post.create({
+      data: {
+        title,
+        content,
+        status: status || "DRAFT",
+        author: {
+          connect: { id: req.user.id },
+        },
+      },
+      include: {
+        author: {
+          select: { id: true, username: true },
+        },
+      },
+    });
+
+    return res.status(200).json({ post, message: "Post created successfully" });
+  } catch (err) {
+    console.error(err);
+
+    if (err.code === "P2002") {
+      return res.status(400).json({
+        message: "You already have a post with this title",
+      });
+    }
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+const updatePost = async (req, res) => {
+  try {
+    const postId = Number(req.params.id);
+    const { title, content, status } = req.body;
+
+    if (!title && !content && !status) {
+      return res
+        .status(400)
+        .json({ message: "Provide at least one field to update" });
+    }
+
+    const existingPost = await prisma.post.findUnique({
+      where: { id: postId },
+    });
+
+    if (!existingPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    if (existingPost.authorId !== req.user.id) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    const updatedPost = await prisma.post.update({
+      where: { id: postId },
+      data: {
+        ...(title && { title }),
+        ...(content && { content }),
+        ...(status && { status }),
+      },
+    });
+
+    return res.status(200).json({
+      post: updatedPost,
+      message: "Post updated successfully",
+    });
+  } catch (err) {
+    console.error(err);
+
+    if (err.code === "P2002") {
+      return res.status(400).json({
+        message: "You already have a post with this title",
+      });
+    }
+
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const deletePost = async (req, res) => {
+  try {
+    const postId = Number(req.params.id);
+
+    const existingPost = await prisma.post.findUnique({
+      where: { id: postId },
+    });
+
+    if (!existingPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    if (existingPost.authorId !== req.user.id) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    await prisma.post.delete({
+      where: { id: postId },
+    });
+
+    return res.status(200).json({
+      message: "Post deleted successfully",
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const updatePostStatus = async (req, res) => {
+  try {
+    const postId = Number(req.params.id);
+    const { status } = req.body;
+
+    const allowedStatus = ["DRAFT", "PUBLISHED", "ARCHIVED"];
+
+    if (!status || !allowedStatus.includes(status)) {
+      return res.status(400).json({
+        message: "Invalid status",
+      });
+    }
+
+    const existingPost = await prisma.post.findUnique({
+      where: { id: postId },
+    });
+
+    if (!existingPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    if (existingPost.authorId !== req.user.id) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    if (existingPost.status === status) {
+      return res
+        .status(200)
+        .json({ post: existingPost, message: `Post is already ${status}` });
+    }
+
+    const updatedPost = await prisma.post.update({
+      where: { id: postId },
+      data: { status },
+    });
+
+    return res.status(200).json({
+      post: updatedPost,
+      message: "Post status updated",
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export {
+  getAllPosts,
+  getPostById,
+  createPost,
+  updatePost,
+  deletePost,
+  updatePostStatus,
+};
