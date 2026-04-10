@@ -24,7 +24,34 @@ app.use("/api/users/", userRoutes);
 
 app.get("/", (req, res) => {
   res.json({
-    message: "API Works :)",
+    name: "Odin Blog API",
+    version: "1.0.0",
+    endpoints: {
+      auth: {
+        "POST /api/auth/signup": "Register a new user",
+        "POST /api/auth/login": "Login and receive JWT",
+      },
+      users: {
+        "POST /api/users/become-author":
+          "Upgrade role to AUTHOR (auth required)",
+      },
+      posts: {
+        "GET /api/posts": "Get all published posts",
+        "GET /api/posts/:id": "Get a single post",
+        "GET /api/posts/author/posts": "Get all your posts (author only)",
+        "POST /api/posts": "Create a post (author only)",
+        "PUT /api/posts/:id": "Update a post (author only)",
+        "PATCH /api/posts/:id/status": "Update post status (author only)",
+        "DELETE /api/posts/:id": "Delete a post (author only)",
+      },
+      comments: {
+        "POST /api/posts/:postId/comments": "Add a comment (auth required)",
+        "PATCH /api/posts/:postId/comments/:id":
+          "Edit your comment (auth required)",
+        "DELETE /api/posts/:postId/comments/:id":
+          "Delete a comment (auth required)",
+      },
+    },
   });
 });
 
