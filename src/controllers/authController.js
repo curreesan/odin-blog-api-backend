@@ -72,6 +72,14 @@ const login = (req, res, next) => {
       return res.json({
         message: "Login successful",
         token,
+        user: {
+          user: user.id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        },
       });
     } catch (error) {
       return res.status(500).json({
