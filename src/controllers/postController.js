@@ -232,6 +232,19 @@ const getAuthorPosts = async (req, res) => {
     const posts = await prisma.post.findMany({
       where: { authorId },
       include: {
+        comments: {
+          include: {
+            author: {
+              select: {
+                id: true,
+                username: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
         _count: {
           select: { comments: true },
         },
@@ -241,7 +254,10 @@ const getAuthorPosts = async (req, res) => {
       },
     });
 
-    res.status(200).json({ posts, message: "All uploaded posts" });
+    res.status(200).json({
+      posts,
+      message: "All uploaded posts",
+    });
   } catch (err) {
     console.error("getAuthorPosts error:", err);
     res.status(500).json({ error: "Failed to fetch author posts" });
