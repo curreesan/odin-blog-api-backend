@@ -15,7 +15,10 @@ const port = process.env.PORT || 5001;
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: [
+      "https://odin-blog-api-author.onrender.com",
+      "https://odin-blog-api-public.onrender.com",
+    ],
   }),
 );
 app.use(express.json());
