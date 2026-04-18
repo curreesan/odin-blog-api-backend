@@ -13,7 +13,11 @@ import userRoutes from "./routes/userRoutes.js";
 const app = express();
 const port = process.env.PORT || 5001;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "http://localhost:5174"],
+  }),
+);
 app.use(express.json());
 app.use(express.static("public")); // serve static files
 
